@@ -1,0 +1,1 @@
+export type CustomError = Error & { errorCode: number };
