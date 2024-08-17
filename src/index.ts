@@ -1,9 +1,10 @@
 import { appConfig } from './config/app.config';
-import app from './app';
+import createApp from './app';
 import sequelize from './database/sequelize';
 
 async function start() {
   try {
+    const app = await createApp();
     await sequelize.authenticate();
     await sequelize.sync({ force: true });
     app.listen({ port: appConfig.port, host: '0.0.0.0' }, (err, address) => {

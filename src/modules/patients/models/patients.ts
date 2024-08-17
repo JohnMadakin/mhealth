@@ -6,6 +6,8 @@ export class Patient extends Model {
   public firstname!: string;
   public lastname!: string;
   public dob!: string;
+  public sex!: string;
+
   public createdAt!: Date;
   public updatedAt!: Date;
   public deletedAt!: Date;
@@ -25,13 +27,17 @@ Patient.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  sex: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   dob: {
     type: DataTypes.DATEONLY,
     allowNull: false,
   },
 }, {
   sequelize,
-  tableName: 'patient'
+  tableName: 'patients'
 });
 
 export default Patient;

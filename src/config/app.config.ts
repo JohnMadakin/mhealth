@@ -28,4 +28,5 @@ export const appConfig: AppConfig = {
     dbName: process.env.DB_NAME || 'default_database',
     dbHost: process.env.DB_HOST || '127.0.0.1',
   },
+  queueUrl: process.env.REDIS_QUEUE_URL || '127.0.0.1/6379',
 };

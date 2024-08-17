@@ -7,6 +7,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "start:dev": "nodemon",
+    "create:knowledgebase": "ts-node src/datasets/create_knowledgebase.ts",
     "test": "jest"
   },
   "author": "",
@@ -14,6 +15,8 @@
   "dependencies": {
     "@fastify/helmet": "^11.1.1",
     "bcrypt": "^5.1.1",
+    "bull": "^4.16.0",
+    "csv-parser": "^3.0.0",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.1",
     "joi": "^17.13.3",
@@ -24,6 +27,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/bull": "^4.10.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.0.1",
     "@types/pg": "^8.11.6",

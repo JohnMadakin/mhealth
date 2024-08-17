@@ -3,6 +3,7 @@ export type Environment = 'development' | 'test' | 'production';
 // Define your app configuration type
 export interface AppConfig {
   port: number;
+  queueUrl: string;
   environment: Environment;
   development: {
     dbUser: string;
