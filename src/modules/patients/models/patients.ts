@@ -1,8 +1,25 @@
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../database/sequelize';
+import authentication from '../../auth/models/auth';
 
-export class Patient extends Model {
+
+// Define attributes for the session model
+export interface PatientAttributes {
+  id: number;
+  authId: number;
+  firstname: string;
+  lastname: string;
+  dob: string;
+  sex: string;
+}
+
+// Define options for the Disease model
+interface PatientCreationAttributes extends Optional<PatientAttributes, 'id'> {}
+
+export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
+  implements PatientAttributes {
   public id!: number;
+  public authId!: number;
   public firstname!: string;
   public lastname!: string;
   public dob!: string;
@@ -18,6 +35,14 @@ Patient.init({
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
+  },
+  authId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: authentication,
+      key: 'id',
+    },
+    allowNull: false,
   },
   firstname: {
     type: DataTypes.STRING,
@@ -40,4 +65,9 @@ Patient.init({
   tableName: 'patients'
 });
 
+Patient.hasOne(authentication, {
+  foreignKey: 'authId',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
 export default Patient;

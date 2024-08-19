@@ -1,4 +1,5 @@
 import { CustomHelpers } from 'joi';
+import crypto from 'crypto';
 import moment from 'moment';
 
 export const ageValidator = (value: string, helpers: CustomHelpers) => {
@@ -12,3 +13,5 @@ export const ageValidator = (value: string, helpers: CustomHelpers) => {
 
   return value;
 }
+
+export const randomStr = (l=15) => crypto.randomBytes(l).toString('hex');

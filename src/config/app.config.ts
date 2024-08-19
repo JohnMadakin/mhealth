@@ -29,4 +29,10 @@ export const appConfig: AppConfig = {
     dbHost: process.env.DB_HOST || '127.0.0.1',
   },
   queueUrl: process.env.REDIS_QUEUE_URL || '127.0.0.1/6379',
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '2weesew43w',
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || 'jbjfsdhre',
+  jwtSecret: process.env.JWT_SECRET || '23Vb!2Vd%',
+  jwtTokenExpiry: process.env.JWT_SECRET_EXPIRY || '5h',
+  jwtRefreshSecret: process.env.JWT_SECRET || '179Vb!2Vd%',
+  jwtRefreshExpiry: process.env.JWT_SECRET_EXPIRY || '5h'
 };

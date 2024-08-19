@@ -16,7 +16,7 @@ const sequelize = new Sequelize({
   username: dbConfig.dbUser,
   password: dbConfig.dbPass,
   database: dbConfig.dbName,
-  logging: false,
+  logging: true,
   pool: {
     max: 10, // Maximum number of connections in the pool
     min: 0, // Minimum number of connections in the pool

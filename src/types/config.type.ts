@@ -4,6 +4,12 @@ export type Environment = 'development' | 'test' | 'production';
 export interface AppConfig {
   port: number;
   queueUrl: string;
+  googleClientSecret: string;
+  googleClientId: string;
+  jwtSecret: string;
+  jwtRefreshSecret: string;
+  jwtTokenExpiry: string;
+  jwtRefreshExpiry: string;
   environment: Environment;
   development: {
     dbUser: string;

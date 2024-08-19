@@ -1,9 +1,23 @@
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, Optional } from 'sequelize';
 import bcrypt from 'bcrypt';
 import sequelize from '../../../database/sequelize';
 import { Authuser } from 'types/user.type';
+import Patient from '../../patients/models/patients';
+import Session from './session';
 
-class Authentication extends Model {
+// Define attributes for the Auth model
+export interface AuthAttributes {
+  id: number;
+  authType: string;
+  email?: string;
+  password?: string;
+}
+
+// Define options for the Disease model
+interface AuthCreationAttributes extends Optional<AuthAttributes, 'id'> {}
+
+class Authentication extends Model<AuthAttributes, AuthCreationAttributes>
+implements AuthAttributes  {
   public id!: number;
   public authType!: string;
   public email!: string;
@@ -35,7 +49,6 @@ Authentication.init({
   password: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
 }, {
   sequelize,
@@ -54,6 +67,11 @@ Authentication.init({
       }
     },
   }
+});
+
+Patient.belongsTo(Authentication);
+Authentication.hasMany(Session, {
+  foreignKey: 'authId'
 });
 
 export default Authentication;
