@@ -42,5 +42,4 @@ Session.init({
   tableName: 'sessions',
 });
 
-Session.belongsTo(Authentication);
 export default Session;

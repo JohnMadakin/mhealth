@@ -1,6 +1,6 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../database/sequelize';
-import authentication from '../../auth/models/auth';
+import Authentication from '../../auth/models/auth';
 
 
 // Define attributes for the session model
@@ -39,7 +39,7 @@ Patient.init({
   authId: {
     type: DataTypes.INTEGER,
     references: {
-      model: authentication,
+      model: Authentication,
       key: 'id',
     },
     allowNull: false,
@@ -65,7 +65,8 @@ Patient.init({
   tableName: 'patients'
 });
 
-Patient.hasOne(authentication, {
+Authentication.belongsTo(Patient);
+Patient.hasOne(Authentication, {
   foreignKey: 'authId',
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE'

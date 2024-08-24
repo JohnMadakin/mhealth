@@ -2,7 +2,6 @@ import { Model, DataTypes, Optional } from 'sequelize';
 import bcrypt from 'bcrypt';
 import sequelize from '../../../database/sequelize';
 import { Authuser } from 'types/user.type';
-import Patient from '../../patients/models/patients';
 import Session from './session';
 
 // Define attributes for the Auth model
@@ -69,9 +68,11 @@ Authentication.init({
   }
 });
 
-Patient.belongsTo(Authentication);
+Session.belongsTo(Authentication);
 Authentication.hasMany(Session, {
   foreignKey: 'authId'
 });
+
+
 
 export default Authentication;

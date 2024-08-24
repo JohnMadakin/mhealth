@@ -13,7 +13,7 @@ import authentication, { AuthAttributes } from './models/auth';
 import { createNewPatientData } from '../patients/patients.service';
 import { appConfig } from '../../config/app.config';
 import sessionModel, { SessionAttributes } from './models/session';
-import Patient from 'modules/patients/models/patients';
+import Patient from '../patients/models/patients';
 
 const spec = joi.object({
   firstname: joi.string().max(120).min(2).required(),
