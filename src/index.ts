@@ -6,7 +6,7 @@ async function start() {
   try {
     const app = await createApp();
     await sequelize.authenticate();
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ force: false });
     app.listen({ port: appConfig.port, host: '0.0.0.0' }, (err, address) => {
       if (err) {
         console.error(err);

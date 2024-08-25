@@ -4,10 +4,17 @@ export type Environment = 'development' | 'test' | 'production';
 export interface AppConfig {
   port: number;
   queueUrl: string;
+  usetwilioVerification: string | undefined;
+  twiloAccount: string;
+  twiloAuthToken: string;
+  twiloPhoneNo: string;
+  twiloVerificationId: string;
   googleClientSecret: string;
   googleClientId: string;
   jwtSecret: string;
+  jwtVerifyOtpSecret: string;
   jwtRefreshSecret: string;
+  jwtVerifyOtpExpiry: string;
   jwtTokenExpiry: string;
   jwtRefreshExpiry: string;
   environment: Environment;

@@ -1,15 +1,20 @@
 import joi from 'joi';
 import ms from 'ms';
-import crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import { 
   NewUser, AuthGoogleLoginDto, NullableType,
   SocialInterface, CustomError, Authuser, 
-  JWTUser
+  JWTUser, CreatePin, TokenData,
+  PhoneLogin
 } from 'types';
-import { ErrorResponse, ageValidator, validateSpec, randomStr } from '../../utils';
+import { 
+  ErrorResponse, ageValidator, validateSpec, 
+  validatePhoneNumber, compareHash, generateOtp,
+  sendOtp, sendTwiloOtp
+} from '../../utils';
 import authentication, { AuthAttributes } from './models/auth';
+import otpCredModel from './models/otp';
 import { createNewPatientData } from '../patients/patients.service';
 import { appConfig } from '../../config/app.config';
 import sessionModel, { SessionAttributes } from './models/session';
@@ -62,7 +67,173 @@ export const patientSignUp = async (data: NewUser): Promise<null> => {
   }
 };
 
+const specPhone = joi.object({
+  phoneNo: joi.string().custom(validatePhoneNumber).messages({
+    'any.invalid': 'Invalid phone number format or country code.' 
+  }).required(),
+});
 
+export const patientSignUpByPhone = async (data: { phoneNo: string }): Promise<{ id: string; }> => {
+  try {
+    const EXPIRY = 30;
+    const params = validateSpec<{ phoneNo: string }>(specPhone, data);
+    let auth = await authentication.findOne({
+      where: {
+        phone: params.phoneNo,
+      }
+    });
+
+    if(auth?.isVerified) {
+      throw new Error('Phone number already exists.');
+    }
+
+    if(!auth ) {
+      try {
+        auth = await authentication.create({
+          phone: params.phoneNo,
+          authType: 'pin',
+        }, { raw: true });
+      } catch (error) {
+        throw new Error('conflicts: Phone number already exists.');
+      }
+    }
+   
+    if(appConfig.usetwilioVerification) {
+      sendTwiloOtp(params.phoneNo);
+    }else{
+      const generatedOtp = generateOtp();
+      //TODO: send text
+      sendOtp(params.phoneNo, generatedOtp);
+      await otpCredModel.create({
+        authId: auth.id,
+        otp: generatedOtp,
+        expiry: Date.now() + EXPIRY * 60 * 1000,
+      })
+    }
+   
+
+    const session = await createSession(auth.id)
+
+    return { id: session.sessionId };
+  } catch (error) {
+    const e = error as CustomError;
+    throw new ErrorResponse(e.message, 400);
+  }
+};
+const otpSpec = joi.object({
+  otp: joi.string().length(6).required(),
+  id: joi.string().uuid().required(),
+  testmode: joi.string(),
+});
+
+export const verifyOtp = async (data: { otp: string; id: string; testmode?: string; }): Promise<{ token: string; tokenExpires: number; }> => {
+  try {
+    const MAX_VERIFY_LIMIT = 3;
+    const params = validateSpec<{ otp: string; id: string; testmode: string;  }>(otpSpec, data);
+   
+    const session = await sessionModel.findOne({ where: { id: params.id }});
+    if(!session) throw new Error('invalid session.');
+    const otpcred = await otpCredModel.findOne({ where: { authId: session.authId }});
+    if(!otpcred) throw new Error('Otp not available.');
+    if(Date.now() > otpcred.expiry) throw new Error('otp expired.');
+
+    let isValidOtp = false;
+    if(appConfig.environment !== 'production' && params.testmode) {
+      if(params.otp === '123456') isValidOtp = true;
+    } else {
+       isValidOtp = compareHash(params.otp, otpcred.otp);
+    }
+
+    if(!isValidOtp) {
+      const affectedRow = await otpcred.increment('failedCount');
+      if(affectedRow.failedCount >= MAX_VERIFY_LIMIT) {
+        await session.destroy();
+        await otpcred.destroy();
+        throw new Error('failed otp count exceeded.');
+      }
+      throw new Error('Invalid otp entered.');
+      // check if the count is more than the max and delete
+    }
+    
+    await authentication.update({ isVerified: true }, { where: { id: session.authId }})
+    const newSession = await sessionModel.create({ authId: session.authId });
+    const tokens = await getTokensDataForOtpVerification({
+      id: newSession.authId,
+      sessionId: newSession.id,
+    });
+    // await session.destroy();
+    //TODO: send text
+  
+    return tokens;
+  } catch (error) {
+    const e = error as CustomError;
+    throw new ErrorResponse(e.message, 400);
+  }
+};
+
+const pinSpec = joi.object({
+  pin: joi.string().length(6).required(),
+  authId: joi.string().required(),
+});
+
+export const createPin = async (data: CreatePin): Promise<null> => {
+  try {
+    const params = validateSpec<CreatePin>(pinSpec, data);
+    const auth = await authentication.findByPk(params.authId);
+    
+    if(!auth) throw new Error('User does not exists.');
+  
+    const updatedAuth = await auth.update({
+      pin: params.pin,
+    });
+    // const session = await createSession(updatedAuth.id);
+    // const tokens = getTokensData({
+    //   id: updatedAuth.id,
+    //   sessionId: session.sessionId,
+    // })
+  
+    return null;
+  } catch (error) {
+    const e = error as CustomError;
+    throw new ErrorResponse(e.message, 400);
+  }
+};
+const loginSpec = joi.object({
+  pin: joi.string().length(6).required(),
+  phoneNo: joi.string().custom(validatePhoneNumber).messages({
+    'any.invalid': 'Invalid phone number format or country code.' 
+  }).required(),
+});
+
+export const phoneLogin = async (data: PhoneLogin): Promise<TokenData> => {
+  try {
+    const params = validateSpec<PhoneLogin>(loginSpec, data);
+    const auth = await authentication.findOne({ where: { phone: params.phoneNo }});
+    
+    if(!auth) throw new Error('User does not exists.');
+
+    const isValidPin = await auth.validatePin(params.pin);
+    if(!isValidPin) throw new Error('invalid pin entered');
+
+    const session = await createSession(auth.id);
+    const tokens = getTokensData({
+      id: auth.id,
+      sessionId: session.sessionId,
+    })
+  
+    return tokens;
+  } catch (error) {
+    const e = error as CustomError;
+    throw new ErrorResponse(e.message, 400);
+  }
+};
+
+const createSession = async (authId: string): Promise<{ sessionId: string; }> => {
+  const session = await sessionModel.create({
+    authId,
+  });
+  return { sessionId: session.id };
+}
 export const socialLogin = async (data: NewUser): Promise<null> => {
   try {
     const params = validateSpec<NewUser>(spec, data);
@@ -131,11 +302,11 @@ export async function getProfileByToken(data: AuthGoogleLoginDto): Promise<JWTUs
   }
 }
 
-export async function verifySession(sessionId: number) {
+export async function verifySession(sessionId: string) {
   return sessionModel.findByPk(sessionId);
 }
 
-export async function verifyUser(authId: number) {
+export async function verifyUser(authId: string) {
   return authentication.findByPk(authId, { include: Patient });
 }
 
@@ -149,24 +320,15 @@ export const validateSocialLogin = async (socialData: SocialInterface): Promise<
   }
 
 
-  const hash = crypto
-    .createHash('sha256')
-    .update(randomStr())
-    .digest('hex');
-
-  const session = await sessionModel.create({
-    authId: userByEmail.id,
-    hash,
-  });
+  const session = await createSession(userByEmail.id)
 
   const {
     token: jwtToken,
     refreshToken,
     tokenExpires,
   } = await getTokensData({
-    id: session.authId,
-    sessionId: session.id,
-    hash,
+    id: userByEmail.id,
+    sessionId: session.sessionId,
   });
 
   return {
@@ -179,8 +341,7 @@ export const validateSocialLogin = async (socialData: SocialInterface): Promise<
 export const getTokensData = async (data: {
   id: AuthAttributes['id'];
   sessionId: SessionAttributes['id'];
-  hash: SessionAttributes['hash'];
-}) => {
+}): Promise<TokenData> => {
   const tokenExpires =  Date.now() + ms(appConfig.jwtTokenExpiry);
   const [token, refreshToken] = await Promise.all([
      jwt.sign(
@@ -196,7 +357,6 @@ export const getTokensData = async (data: {
      jwt.sign(
       {
         sessionId: data.sessionId,
-        hash: data.hash,
       },
       appConfig.jwtRefreshSecret,
       {
@@ -208,6 +368,29 @@ export const getTokensData = async (data: {
   return {
     token,
     refreshToken,
+    tokenExpires,
+  };
+}
+
+export const getTokensDataForOtpVerification = async (data: {
+  id: AuthAttributes['id'];
+  sessionId: SessionAttributes['id'];
+}): Promise<{ token: string, tokenExpires: number; }> => {
+  const tokenExpires =  Date.now() + ms(appConfig.jwtVerifyOtpExpiry);
+  const token = await
+     jwt.sign(
+      {
+        id: data.id,
+        sessionId: data.sessionId,
+      },
+      appConfig.jwtVerifyOtpSecret,
+      {
+        expiresIn: tokenExpires,
+      },
+    );
+
+  return {
+    token,
     tokenExpires,
   };
 }

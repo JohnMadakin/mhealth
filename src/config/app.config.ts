@@ -10,6 +10,11 @@ function getEnvironment(): Environment {
 export const appConfig: AppConfig = {
   port: Number(process.env.PORT) || 8000,
   environment: getEnvironment(),
+  usetwilioVerification: process.env.TWILIO_VERIFICATION,
+  twiloAccount: process.env.TWILIO_ACCOUNT_ID || '',
+  twiloVerificationId: process.env.TWILIO_VERIFICATION_ID || '',
+  twiloAuthToken: process.env.TWILIO_AUTH_TOKEN || '',
+  twiloPhoneNo: process.env.TWILIO_PHONE_NO || '+447572760334',
   development: {
     dbUser: process.env.DB_USER || 'default_user',
     dbPass: process.env.DB_PASSWORD || 'default_password',
@@ -32,7 +37,9 @@ export const appConfig: AppConfig = {
   googleClientId: process.env.GOOGLE_CLIENT_ID || '2weesew43w',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || 'jbjfsdhre',
   jwtSecret: process.env.JWT_SECRET || '23Vb!2Vd%',
+  jwtVerifyOtpSecret: process.env.JWT_VERIFY_OTP_SECRET || '^p#23x+b!2Vd%',
   jwtTokenExpiry: process.env.JWT_SECRET_EXPIRY || '5h',
-  jwtRefreshSecret: process.env.JWT_SECRET || '179Vb!2Vd%',
-  jwtRefreshExpiry: process.env.JWT_SECRET_EXPIRY || '5h'
+  jwtVerifyOtpExpiry: process.env.JWT_OTP_SECRET_EXPIRY || '0.3h',
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '179Vb!2Vd%',
+  jwtRefreshExpiry: process.env.JWT_REFRESH_SECRET_EXPIRY || '5h'
 };

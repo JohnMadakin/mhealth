@@ -1,8 +1,8 @@
 import { 
-  FastifyInstance, FastifyPluginCallback,
+  // FastifyInstance, FastifyPluginCallback,
   FastifyRequest, FastifyReply  
 } from 'fastify';
-import fastifyPlugin from 'fastify-plugin';
+// import fastifyPlugin from 'fastify-plugin';
 import { ErrorResponse } from '../utils/response';
 import { verifySession, verifyUser } from '../modules/auth/auth.service';
 

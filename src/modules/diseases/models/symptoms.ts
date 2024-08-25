@@ -42,6 +42,8 @@ Symptom.init({
 }, {
   sequelize,
   tableName: 'symptoms',
+  paranoid: true,
+
 });
 
 export default Symptom;

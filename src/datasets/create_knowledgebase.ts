@@ -103,7 +103,6 @@ async function parseAndUpdateDisease(filePath: string) {
       try {
         for (const row of results) {
           // Find or create Disease
-          console.log('🍐', row.Description);
           const [disease, created] = await Disease.findOrCreate({
             where: { name: row.Disease.trim() },
             defaults: {

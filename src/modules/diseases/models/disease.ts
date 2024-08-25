@@ -41,6 +41,7 @@ Disease.init({
 }, {
   sequelize,
   tableName: 'diseases',
+  paranoid: true,
 });
 
 

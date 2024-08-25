@@ -2,7 +2,7 @@ import { ErrorResponse } from '../../utils';
 import patients, { Patient } from './models/patients';
 import { CustomError, NewPatient } from 'types';
 
-export const createNewPatientData = async (authId: number, data: NewPatient): Promise<Patient> => {
+export const createNewPatientData = async (authId: string, data: NewPatient): Promise<Patient> => {
   try {
     const newPatient = await patients.create({
       authId,

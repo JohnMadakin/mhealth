@@ -10,8 +10,8 @@ declare module 'fastify' {
   interface FastifyRequest {
     user?: any;
     session?: {
-      id: number,
-      sessionId: number;
+      id: string,
+      sessionId: string;
     }; // or use a specific type instead of `any`, e.g., `user?: UserType`
   }
 }

@@ -4,42 +4,37 @@ import Authentication from './auth';
 
 // Define attributes for the session model
 export interface SessionAttributes {
-  id: number;
+  id: string;
   authId: number;
-  hash?: string;
 }
 
 class Session extends Model {
-  public id!: number;
-  public authId!: number;
-  public hash!: string;
-  public createdAt!: Date;
-  public updatedAt!: Date;
-  public deletedAt!: Date;
+  declare id: string;
+  declare authId: string;
+  declare createdAt: Date;
+  declare updatedAt: Date;
+  declare deletedAt: Date;
 
 }
 
 Session.init({
   id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
   authId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     references: {
       model: Authentication,
       key: 'id',
     },
     allowNull: false,
   },
-  hash: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
 }, {
   sequelize,
   tableName: 'sessions',
+  paranoid: true,
 });
 
 export default Session;

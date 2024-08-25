@@ -27,6 +27,7 @@ DiseaseSymptom.init(
   {
     sequelize,
     modelName: 'diseaseSymptom',
+    paranoid: true,
   }
 );
 

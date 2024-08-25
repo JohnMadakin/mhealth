@@ -6,7 +6,7 @@ import Authentication from '../../auth/models/auth';
 // Define attributes for the session model
 export interface PatientAttributes {
   id: number;
-  authId: number;
+  authId: string;
   firstname: string;
   lastname: string;
   dob: string;
@@ -19,7 +19,7 @@ interface PatientCreationAttributes extends Optional<PatientAttributes, 'id'> {}
 export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
   implements PatientAttributes {
   public id!: number;
-  public authId!: number;
+  public authId!: string;
   public firstname!: string;
   public lastname!: string;
   public dob!: string;
@@ -37,7 +37,7 @@ Patient.init({
     primaryKey: true,
   },
   authId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     references: {
       model: Authentication,
       key: 'id',
@@ -62,13 +62,8 @@ Patient.init({
   },
 }, {
   sequelize,
-  tableName: 'patients'
+  tableName: 'patients',
+  paranoid: true,
 });
 
-Authentication.belongsTo(Patient);
-Patient.hasOne(Authentication, {
-  foreignKey: 'authId',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE'
-});
 export default Patient;
