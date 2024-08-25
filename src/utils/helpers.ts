@@ -5,6 +5,8 @@ import moment from 'moment';
 import { Twilio } from 'twilio';
 import { appConfig } from '../config/app.config';
 
+if(!appConfig.secretKey) throw new Error('You need to set app secretKey.');
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 // Initialize Twilio client
 const twilioClient = new Twilio(appConfig.twiloAccount, appConfig.twiloAuthToken);
@@ -81,4 +83,43 @@ export const sendOtp = async (phoneNo: string, otp: string): Promise<null> => {
     console.error('Failed to send OTP:', error);
   }
   return null;
+}
+
+
+/**
+ * Encrypts a payload using AES-256-CBC.
+ * @param payload - The payload to encrypt (can be a string).
+ * @returns An object containing the IV and encrypted data in hexadecimal format.
+ */
+export function encrypt(payload: string, iv: string): string {
+  const secretKey = appConfig.secretKey;
+  if(!secretKey)  throw new Error('You need to set app secretKey.');
+
+  const parseIv = iv.replace(/-/g, '');
+  const ivHex = Buffer.from(parseIv, 'hex');
+  const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), ivHex);
+  let encrypted = cipher.update(payload, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
+
+/**
+ * Decrypts an encrypted payload using AES-256-CBC.
+ * @param encryptedData - The encrypted data in hexadecimal format.
+ * @param iv - The initialization vector in hexadecimal format.
+ * @param secretKey - A 32-byte (256-bit) secret key.
+ * @returns The decrypted payload as a string.
+ */
+export function decrypt(encryptedData: string, iv: string): string {
+  const secretKey = appConfig.secretKey;
+  if(!secretKey)  throw new Error('You need to set app secretKey.');
+
+  const parseIv = iv.replace(/-/g, '');
+  const ivHex = Buffer.from(parseIv, 'hex');
+  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), ivHex);
+
+  let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+
+  return decrypted;
 }

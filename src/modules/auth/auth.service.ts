@@ -23,9 +23,9 @@ import Patient from '../patients/models/patients';
 const spec = joi.object({
   firstname: joi.string().max(120).min(2).required(),
   lastname: joi.string().max(120).min(2).required(),
-  email: joi.string().email().required(),
-  password: joi.string().max(120).min(6).required(),
+  // password: joi.string().max(120).min(6).required(),
   sex: joi.string().valid('male', 'female').required(),
+  authId: joi.string().uuid().required(),
   dob: joi.date().max('now').custom(ageValidator).messages({
     'date.base': 'Date of birth must be a valid date',
     'date.max': 'Date of birth cannot be in the future',
@@ -33,26 +33,18 @@ const spec = joi.object({
   }).required(),
 });
 
-export const patientSignUp = async (data: NewUser): Promise<null> => {
+export const patientSignUp = async (data: NewUser): Promise<Patient> => {
   try {
     const params = validateSpec<NewUser>(spec, data);
-    let auth = await authentication.findOne({
+    let patient = await Patient.findOne({
       where: {
-        email: params.email,
+        authId: params.authId,
       }
     });
-    
-    if(auth) throw new Error('Email already exists.');
-  
-    try {
-      auth = await authentication.create({
-        ...params,
-        authType: 'password',
-      });
-    } catch (error) {
-      throw new Error('Email already exists.');
-    }
-    await createNewPatientData(auth.id, {
+    if(!params.authId) throw new Error('AuthId is required.');
+    if(patient) throw new Error('User already registered.');
+
+    const result = await createNewPatientData(params.authId, {
       firstname: params.firstname,
       lastname: params.lastname,
       dob: params.dob.toString(),
@@ -60,7 +52,7 @@ export const patientSignUp = async (data: NewUser): Promise<null> => {
     });
     //TODO: send email
   
-    return null;
+    return result;
   } catch (error) {
     const e = error as CustomError;
     throw new ErrorResponse(e.message, 400);

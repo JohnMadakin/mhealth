@@ -5,6 +5,7 @@ export type NewUser = {
   email: string; 
   password: string;
   sex: string;
+  authId?: string;
 }
 
 export type Authuser = {

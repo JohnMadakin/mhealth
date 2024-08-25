@@ -4,6 +4,7 @@ export type Environment = 'development' | 'test' | 'production';
 export interface AppConfig {
   port: number;
   queueUrl: string;
+  secretKey: string | undefined;
   usetwilioVerification: string | undefined;
   twiloAccount: string;
   twiloAuthToken: string;

@@ -10,8 +10,11 @@ import { ErrorResponse, SuccessResponse } from '../../utils/response';
 
 export const signup: RouteHandlerMethod = async (req: FastifyRequest, reply: FastifyReply) => {
   try {
-    const newUser = await patientSignUp(req.body as NewUser);
-    return reply.send(new SuccessResponse('Verify email to complete registration.', newUser));
+    if(!req.session) throw new Error('No session available.');
+    const data = req.body as NewUser;
+
+    const newUser = await patientSignUp({ ...data, authId: req.session.id });
+    return reply.send(new SuccessResponse('User created.', newUser));
   } catch (error) {
     const e = error as CustomError;
     return reply.status(e.errorCode).send(new ErrorResponse(e.message, e.errorCode));

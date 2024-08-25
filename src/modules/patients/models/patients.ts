@@ -1,7 +1,8 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../database/sequelize';
 import Authentication from '../../auth/models/auth';
-
+import { encrypt, decrypt } from '../../../utils';
+const pii: (keyof Patient)[]  = ['firstname', 'lastname', 'sex'];
 
 // Define attributes for the session model
 export interface PatientAttributes {
@@ -18,16 +19,12 @@ interface PatientCreationAttributes extends Optional<PatientAttributes, 'id'> {}
 
 export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
   implements PatientAttributes {
-  public id!: number;
-  public authId!: string;
-  public firstname!: string;
-  public lastname!: string;
-  public dob!: string;
-  public sex!: string;
-
-  public createdAt!: Date;
-  public updatedAt!: Date;
-  public deletedAt!: Date;
+  declare id: number;
+  declare authId: string;
+  declare firstname: string;
+  declare lastname: string;
+  declare dob: string;
+  declare sex: string;
 }
 
 Patient.init({
@@ -64,6 +61,52 @@ Patient.init({
   sequelize,
   tableName: 'patients',
   paranoid: true,
+  hooks: {
+    afterCreate: (patient: Patient) => {
+      if(patient) {
+        const patientObj = patient.toJSON() as Patient;
+        pii.forEach((key) => {
+          if(patientObj[key]) {
+            const decryptedValue = decrypt(patientObj[key] as string, patientObj.authId);
+            patient[key as keyof Patient] = decryptedValue as never;
+          }
+        });
+      }
+    },
+    beforeCreate: async (patient: Patient) => {
+      const patientObj = patient.toJSON() as Patient;
+      pii.forEach((key) => {
+        if(patientObj[key]) {
+          const encryptedValue = encrypt(patientObj[key] as string, patientObj.authId);
+          patient[key as keyof Patient] = encryptedValue as never;
+          //@ts-ignore
+          patient.setDataValue(key, encryptedValue);
+        } 
+      });
+    },
+    afterFind: async (patient: Patient) => {      
+      if(patient) {
+        const patientObj = patient.toJSON() as Patient;
+        pii.forEach((key) => {
+          if(patientObj[key]) {
+            const decryptedValue = decrypt(patientObj[key] as string, patientObj.authId);
+            patient[key as keyof Patient] = decryptedValue as never;
+          }
+        });
+      }
+    },
+    beforeUpdate: async (patient: Patient) => {
+      const patientObj = patient.toJSON() as Patient;
+      pii.forEach((key) => {
+        if(patientObj[key]) {
+          const encryptedValue = encrypt(patientObj[key] as string, patientObj.authId);
+          patient[key as keyof Patient] = encryptedValue as never;
+          //@ts-ignore
+          patient.setDataValue(key, encryptedValue);
+        } 
+      });
+    },
+  }
 });
 
 export default Patient;

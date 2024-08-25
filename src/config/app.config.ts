@@ -41,5 +41,6 @@ export const appConfig: AppConfig = {
   jwtTokenExpiry: process.env.JWT_SECRET_EXPIRY || '5h',
   jwtVerifyOtpExpiry: process.env.JWT_OTP_SECRET_EXPIRY || '0.3h',
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '179Vb!2Vd%',
-  jwtRefreshExpiry: process.env.JWT_REFRESH_SECRET_EXPIRY || '5h'
+  jwtRefreshExpiry: process.env.JWT_REFRESH_SECRET_EXPIRY || '5h',
+  secretKey: process.env.SECRET_KEY,
 };

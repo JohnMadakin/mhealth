@@ -3,10 +3,12 @@ import {
   signup, socialSignup, signupPhone, 
   verifySignupPhone, setPin, loginPhone
 } from '../modules/auth/auth.controller';
-import { verifyOTPToken, userAuth } from '../plugins';
+import { verifyOTPToken, userAuth, verifyToken } from '../plugins';
 
 export const authRoutes: FastifyPluginCallback =  (fastify: FastifyInstance, options: any, done: () => void) => {
-  fastify.post('/auth/register-email', signup);
+  fastify.post('/auth/create-user',{
+    preHandler: [verifyToken, userAuth]
+  }, signup);
   fastify.post('/auth/register-phone', signupPhone);
   fastify.post('/auth/verify-phone', verifySignupPhone);
   fastify.post('/auth/login-phone', loginPhone);
