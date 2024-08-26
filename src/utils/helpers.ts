@@ -11,6 +11,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 // Initialize Twilio client
 const twilioClient = new Twilio(appConfig.twiloAccount, appConfig.twiloAuthToken);
 
+function parseDate(dateString: string): moment.Moment {
+  return moment(dateString, 'MM/DD/YYYY');
+}
 
 export const ageValidator = (value: string, helpers: CustomHelpers) => {
   const today = moment();
@@ -21,7 +24,7 @@ export const ageValidator = (value: string, helpers: CustomHelpers) => {
     return helpers.message({ error: 'You must be at least 18 years old' });
   }
 
-  return value;
+  return parseDate(value);
 }
 
 export const randomStr = (l=15) => crypto.randomBytes(l).toString('hex');
@@ -122,4 +125,21 @@ export function decrypt(encryptedData: string, iv: string): string {
   decrypted += decipher.final('utf8');
 
   return decrypted;
+}
+
+/**
+ * Converts a full ISO date string to just the 'YYYY-MM-DD' format.
+ * @param dateString - The full ISO date string.
+ * @returns A string representing the date in 'YYYY-MM-DD' format.
+ */
+export function formatDateToYearMonthDay(dateString: string): string {
+  const date = new Date(dateString);
+
+  // Get the year, month, and day from the date object
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+  const day = String(date.getUTCDate()).padStart(2, '0');
+
+  // Return the formatted date string in 'YYYY-MM-DD' format
+  return `${year}-${month}-${day}`;
 }

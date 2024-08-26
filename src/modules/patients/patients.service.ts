@@ -17,7 +17,7 @@ export const createNewPatientData = async (authId: string, data: NewPatient): Pr
   }
 };
 
-export const updatePatientData = async (authId: number, data: NewPatient): Promise<Patient> => {
+export const updatePatientData = async (authId: string, data: NewPatient): Promise<Patient> => {
   try {
     const [_, affectedPatients] = await patients.update({
       ...data
@@ -25,6 +25,15 @@ export const updatePatientData = async (authId: number, data: NewPatient): Promi
   
     return affectedPatients[0];
   } catch (error) {
+    const e = error as CustomError;
+    throw new ErrorResponse(e.message, 400);
+  }
+};
+
+export const getPatientData = async (authId: string): Promise<Patient | null> => {
+  try {
+    return await patients.findOne({ where: { authId } });
+    } catch (error) {
     const e = error as CustomError;
     throw new ErrorResponse(e.message, 400);
   }

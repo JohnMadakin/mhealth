@@ -6,7 +6,7 @@ const pii: (keyof Patient)[]  = ['firstname', 'lastname', 'sex'];
 
 // Define attributes for the session model
 export interface PatientAttributes {
-  id: number;
+  id: string;
   authId: string;
   firstname: string;
   lastname: string;
@@ -19,7 +19,7 @@ interface PatientCreationAttributes extends Optional<PatientAttributes, 'id'> {}
 
 export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
   implements PatientAttributes {
-  declare id: number;
+  declare id: string;
   declare authId: string;
   declare firstname: string;
   declare lastname: string;
@@ -29,8 +29,8 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
 
 Patient.init({
   id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
   authId: {
@@ -74,15 +74,19 @@ Patient.init({
       }
     },
     beforeCreate: async (patient: Patient) => {
-      const patientObj = patient.toJSON() as Patient;
-      pii.forEach((key) => {
-        if(patientObj[key]) {
-          const encryptedValue = encrypt(patientObj[key] as string, patientObj.authId);
-          patient[key as keyof Patient] = encryptedValue as never;
-          //@ts-ignore
-          patient.setDataValue(key, encryptedValue);
-        } 
-      });
+      try {
+        const patientObj = patient.toJSON() as Patient;
+        pii.forEach((key) => {
+          if(patientObj[key]) {
+            const encryptedValue = encrypt(patientObj[key] as string, patientObj.authId);
+            patient[key as keyof Patient] = encryptedValue as never;
+            //@ts-ignore
+            patient.setDataValue(key, encryptedValue);
+          } 
+        });
+      } catch (error) {
+        console.log('‼️', error);
+      }
     },
     afterFind: async (patient: Patient) => {      
       if(patient) {

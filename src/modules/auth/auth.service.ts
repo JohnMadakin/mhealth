@@ -1,4 +1,5 @@
-import joi from 'joi';
+import joiBase from 'joi';
+import JoiDate from '@joi/date';
 import ms from 'ms';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
@@ -11,7 +12,7 @@ import {
 import { 
   ErrorResponse, ageValidator, validateSpec, 
   validatePhoneNumber, compareHash, generateOtp,
-  sendOtp, sendTwiloOtp
+  sendOtp, sendTwiloOtp, formatDateToYearMonthDay
 } from '../../utils';
 import authentication, { AuthAttributes } from './models/auth';
 import otpCredModel from './models/otp';
@@ -20,13 +21,14 @@ import { appConfig } from '../../config/app.config';
 import sessionModel, { SessionAttributes } from './models/session';
 import Patient from '../patients/models/patients';
 
+const joi = joiBase.extend(JoiDate);
 const spec = joi.object({
   firstname: joi.string().max(120).min(2).required(),
   lastname: joi.string().max(120).min(2).required(),
   // password: joi.string().max(120).min(6).required(),
   sex: joi.string().valid('male', 'female').required(),
   authId: joi.string().uuid().required(),
-  dob: joi.date().max('now').custom(ageValidator).messages({
+  dob: joi.date().format('DD/MM/YYYY').max('now').custom(ageValidator).messages({
     'date.base': 'Date of birth must be a valid date',
     'date.max': 'Date of birth cannot be in the future',
     'any.required': 'Date of birth is required',
@@ -36,6 +38,7 @@ const spec = joi.object({
 export const patientSignUp = async (data: NewUser): Promise<Patient> => {
   try {
     const params = validateSpec<NewUser>(spec, data);
+
     let patient = await Patient.findOne({
       where: {
         authId: params.authId,
@@ -47,7 +50,7 @@ export const patientSignUp = async (data: NewUser): Promise<Patient> => {
     const result = await createNewPatientData(params.authId, {
       firstname: params.firstname,
       lastname: params.lastname,
-      dob: params.dob.toString(),
+      dob: params.dob,
       sex: params.sex,
     });
     //TODO: send email
