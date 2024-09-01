@@ -1,6 +1,8 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../database/sequelize';
-import Symptom from './symptoms';
+// import Symptom from './symptoms';
+// import DiseaseSymptom from './disease.symptom';
+
 
 // Define attributes for the Disease model
 export interface DiseaseAttributes {
@@ -14,14 +16,14 @@ interface DiseaseCreationAttributes extends Optional<DiseaseAttributes, 'id'> {}
 
 class Disease extends Model<DiseaseAttributes, DiseaseCreationAttributes>
   implements DiseaseAttributes {
-  public id!: number;
-  public name!: string;
-  public description?: string;
+  declare id: number;
+  declare name: string;
+  declare description?: string;
 
   // Timestamps
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-  public readonly deletedAt!: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+  declare readonly deletedAt: Date;
 }
 
 Disease.init({
@@ -44,5 +46,8 @@ Disease.init({
   paranoid: true,
 });
 
+// // Define Many-to-Many relationships
+// Disease.belongsToMany(Symptom, { through: 'DiseaseSymptom', foreignKey: 'diseaseId' });
+// Symptom.belongsToMany(Disease, { through: 'DiseaseSymptom', foreignKey: 'symptomId' });
 
 export default Disease;

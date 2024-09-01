@@ -153,18 +153,18 @@ async function parseAndUpdateSymptom(filePath: string) {
 }
 
 async function executeMethods() {
-  await sequelize.sync({ force: true });
+  await sequelize.sync({ force: false });
 
-  const filePath = path.join(__dirname, '/datasets/dataset.csv'); // Adjust the path to your CSV file
+  const filePath = path.join(__dirname, '/dataset.csv'); // Adjust the path to your CSV file
   await parseAndStoreCSV(filePath);
 
-  const filePath2 = path.join(__dirname, '/datasets/disease_Description.csv'); // Adjust the path to your CSV file
+  const filePath2 = path.join(__dirname, '/disease_Description.csv'); // Adjust the path to your CSV file
   await parseAndUpdateDisease(filePath2);
 
-  const filePath3 = path.join(__dirname, '/datasets/Symptom-severity.csv'); // Adjust the path to your CSV file
+  const filePath3 = path.join(__dirname, '/Symptom-severity.csv'); // Adjust the path to your CSV file
   await parseAndUpdateSymptom(filePath3);
 
-  const filePath4 = path.join(__dirname, '/datasets/symptom_precaution.csv'); // Adjust the path to your CSV file
+  const filePath4 = path.join(__dirname, '/symptom_precaution.csv'); // Adjust the path to your CSV file
   await parseAndStoreDiseaseandActivityCSV(filePath4);
 }
 

@@ -1,7 +1,9 @@
-import { Model, DataTypes, Optional } from 'sequelize';
+import { Model, DataTypes, Optional, BelongsToMany } from 'sequelize';
 import sequelize from '../../../database/sequelize';
 import Authentication from '../../auth/models/auth';
+import DiseaseSymptom from '../../diseases/models/disease.symptom';
 import { encrypt, decrypt } from '../../../utils';
+import PatientDiseaseSymptom from './patients.disease.symptoms';
 const pii: (keyof Patient)[]  = ['firstname', 'lastname', 'sex'];
 
 // Define attributes for the session model
@@ -25,6 +27,8 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
   declare lastname: string;
   declare dob: string;
   declare sex: string;
+
+  static DiseaseSymptom: BelongsToMany<Patient, DiseaseSymptom>;
 }
 
 Patient.init({
@@ -112,5 +116,8 @@ Patient.init({
     },
   }
 });
+
+Patient.DiseaseSymptom = Patient.belongsToMany(DiseaseSymptom, { through: PatientDiseaseSymptom, foreignKey: 'patientId' });
+DiseaseSymptom.Patient = DiseaseSymptom.belongsToMany(Patient, { through: PatientDiseaseSymptom, foreignKey: 'diseaseandsymptomId' });
 
 export default Patient;

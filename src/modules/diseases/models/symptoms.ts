@@ -1,11 +1,14 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../database/sequelize';
+import DiseaseSymptom from './disease.symptom';
+import Disease from './disease';
+
 
 // Define attributes for the Symptom model
-interface SymptomAttributes {
+export interface SymptomAttributes {
   id: number;
   description?: string;
-  weight: number;
+  weight?: number;
 }
 
 // Define options for the Symptom model
@@ -13,15 +16,15 @@ interface SymptomCreationAttributes extends Optional<SymptomAttributes, 'id'> {}
 
 class Symptom extends Model<SymptomAttributes, SymptomCreationAttributes>
   implements SymptomAttributes {
-  public id!: number;
-  public weight!: number;
-  public description?: string;
-  public diseaseId!: number;
+  declare id: number;
+  declare weight: number;
+  declare description?: string;
+  declare diseaseId: number;
 
   // Timestamps
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-  public readonly deletedAt!: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+  declare readonly deletedAt: Date;
 }
 
 Symptom.init({
