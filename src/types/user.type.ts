@@ -6,6 +6,7 @@ export type NewUser = {
   password: string;
   sex: string;
   authId?: string;
+  healthProvider?: string;
 }
 
 export type Authuser = {

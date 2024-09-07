@@ -3,7 +3,7 @@ import sequelize from '../../../database/sequelize';
 import Authentication from '../../auth/models/auth';
 import DiseaseSymptom from '../../diseases/models/disease.symptom';
 import { encrypt, decrypt } from '../../../utils';
-import PatientDiseaseSymptom from './patients.disease.symptoms';
+import PatientHistory from './patient.history';
 const pii: (keyof Patient)[]  = ['firstname', 'lastname', 'sex'];
 
 // Define attributes for the session model
@@ -117,7 +117,7 @@ Patient.init({
   }
 });
 
-Patient.DiseaseSymptom = Patient.belongsToMany(DiseaseSymptom, { through: PatientDiseaseSymptom, foreignKey: 'patientId' });
-DiseaseSymptom.Patient = DiseaseSymptom.belongsToMany(Patient, { through: PatientDiseaseSymptom, foreignKey: 'diseaseandsymptomId' });
+Patient.DiseaseSymptom = Patient.belongsToMany(DiseaseSymptom, { through: PatientHistory, foreignKey: 'patientId' });
+DiseaseSymptom.Patient = DiseaseSymptom.belongsToMany(Patient, { through: PatientHistory, foreignKey: 'diseaseandsymptomId' });
 
 export default Patient;

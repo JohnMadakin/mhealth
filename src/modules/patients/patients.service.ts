@@ -85,7 +85,7 @@ const spec = joi.object({
   patientId: joi.string().uuid().required(),
   diseasesAndSymptoms: joi.array().items(joi.string()).unique().min(1).max(50).required(),
 });
-export const createPatientIllnessData = async (data: any): Promise<Patient> => {
+export const createPatientSymptomLog = async (data: any): Promise<Patient> => {
   try {
       const params = validateSpec<PatientSicknessSymptomsData>(spec, data);
       const [patient, diseaseSymptoms] =  await Promise.all([

@@ -7,9 +7,8 @@ import activities from '../../activities/models/activities';
 // Define attributes for the Tracker model
 export interface TrackerAttributes {
   id: number;
-  patientId: number;
-  activityId: number;
-  frequency?: string;
+  patientId: string;
+  fitBitData?: any;
 }
 
 // Define options for the Tracker model
@@ -17,15 +16,9 @@ interface TrackerCreationAttributes extends Optional<TrackerAttributes, 'id'> {}
 
 class Tracker extends Model<TrackerAttributes, TrackerCreationAttributes>
   implements TrackerAttributes {
-  public id!: number;
-  public patientId!: number;
-  public activityId!: number;
-  public frequency?: string;
-
-  // Timestamps
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-  public readonly deletedAt!: Date;
+    declare id: number;
+    declare patientId: string;
+    declare fitBitData: any;
 }
 
 Tracker.init({
@@ -34,13 +27,8 @@ Tracker.init({
     autoIncrement: true,
     primaryKey: true,
   },
-  frequency: {
-    type: DataTypes.ENUM('daily', 'weekly', 'monthly', 'yearly', 'one_time_only', 'none'),
-    allowNull: true,
-    defaultValue: 'none',
-  },
   patientId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     references: {
       model: patients,
       key: 'id',
@@ -48,17 +36,15 @@ Tracker.init({
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   },
-  activityId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: activities,
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
+  fitBitData: {
+    type: DataTypes.JSONB,
+    defaultValue: {}
   },
 }, {
   sequelize,
   tableName: 'tracker',
+  timestamps: true,
+  paranoid: true,
 });
 
 

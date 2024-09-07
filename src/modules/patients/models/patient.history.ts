@@ -3,9 +3,9 @@ import sequelize from '../../../database/sequelize';
 import Patients from './patients';
 import DiseaseSymptoms from '../../diseases/models/disease.symptom';
 
-class PatientDiseaseSymptom extends Model {}
+class PatientHistory extends Model {}
 
-PatientDiseaseSymptom.init(
+PatientHistory.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -32,10 +32,10 @@ PatientDiseaseSymptom.init(
   },
   {
     sequelize,
-    modelName: 'patientDiseaseSymptom',
+    modelName: 'patientHistory',
     paranoid: true,
   }
 );
 
 
-export default PatientDiseaseSymptom;
+export default PatientHistory;

@@ -7,6 +7,8 @@ import DiseaseActivity from '../modules/activities/models/diseaase.activities';
 import Disease from '../modules/diseases/models/disease';
 import DiseaseSymptom from '../modules/diseases/models/disease.symptom';
 import sequelize from '../database/sequelize'; // Adjust this import based on your project structure
+import TrackingData from '../modules/diseases/models/tracking.data';
+import DiseaseTrackingData from '../modules/diseases/models/disease.trackingdata';
 
 async function parseAndStoreCSV(filePath: string) {
   const results: { Disease: string; [key: string]: string | null }[] = [];
@@ -152,9 +154,53 @@ async function parseAndUpdateSymptom(filePath: string) {
     });
 }
 
-async function executeMethods() {
-  await sequelize.sync({ force: false });
+async function parseAndStorDataToTrack(filePath: string) {
+  const results: { Disease: string; [key: string]: string | null }[] = [];
+  Disease.belongsToMany(TrackingData, { through: DiseaseTrackingData, foreignKey: 'diseaseId' });
+  TrackingData.belongsToMany(Disease, { through: DiseaseTrackingData, foreignKey: 'trackingDataId' });
 
+  fs.createReadStream(filePath)
+    .pipe(csvParser())
+    .on('data', (data) => results.push(data))
+    .on('end', async () => {
+      // Parsing complete, now store in the DB
+      try {
+        for (const row of results) {
+          // Find or create Disease
+          console.log('🍎', row);
+          const [disease, created] = await Disease.findOrCreate({
+            where: { name: row.Disease.trim() },
+          });
+          const regex = /,(?![^(]*\))/;
+          const data_to_track = row.Data_to_Track?.toLowerCase().split(regex);
+          // console.log('🍅', data_to_track);
+          if(!data_to_track) return;
+          // Iterate over symptom columns and associate them with the disease
+          for (let i = 0; i <= data_to_track.length; i++) {
+
+            if (data_to_track[i]) {
+              // Find or create Symptom
+              const [trackingItem, isCreated] = await TrackingData.findOrCreate({
+                where: { trackingItem: data_to_track[i] },
+              });
+
+              // Associate Disease and Symptom
+              // @ts-ignore
+              await disease.addTrackingData(trackingItem);
+            }
+          }
+        }
+
+        console.log('CSV data successfully stored in the database.');
+      } catch (error) {
+        console.error('🔥Error storing data in the database:', error);
+      }
+    });
+}
+
+async function executeMethods() {
+  await sequelize.sync({ force: true });
+  console.log('--🔥--')
   const filePath = path.join(__dirname, '/dataset.csv'); // Adjust the path to your CSV file
   await parseAndStoreCSV(filePath);
 
@@ -166,6 +212,9 @@ async function executeMethods() {
 
   const filePath4 = path.join(__dirname, '/symptom_precaution.csv'); // Adjust the path to your CSV file
   await parseAndStoreDiseaseandActivityCSV(filePath4);
+
+  const filePath5 =  path.join(__dirname, '/data_to_track.csv');
+  await parseAndStorDataToTrack(filePath5)
 }
 
 executeMethods();

@@ -18,6 +18,13 @@ export interface AppConfig {
   jwtVerifyOtpExpiry: string;
   jwtTokenExpiry: string;
   jwtRefreshExpiry: string;
+  fitbitAuthorizationURL: string;
+  redisQueueUrl: string;
+  jobRemovalTime: string;
+  fitbitClientId: string;
+  fitbitClientSecret: string;
+  fitbitRedirectUrl: string;
+  fitbitAPIUrl: string;
   environment: Environment;
   development: {
     dbUser: string;

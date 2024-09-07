@@ -5,6 +5,9 @@ import { CustomError } from 'types/error.type';
 import { validateSpec } from '../../utils';
 import Symptom, { SymptomAttributes } from './models/symptoms';
 import { Includeable } from 'sequelize';
+import TrackingData from './models/tracking.data';
+import DiseaseTrackingData from './models/disease.trackingdata';
+
 
 const spec = joi.object({
   include_symptoms: joi.string(),
