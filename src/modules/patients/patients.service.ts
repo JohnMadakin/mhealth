@@ -111,8 +111,6 @@ export const createPatientSymptomLog = async (data: any): Promise<Patient> => {
         });
       }
 
-      
-      console.log('🍐',diseaseSymptoms);
       // @ts-ignore
       const result = await patient.addDiseaseSymptoms(diseaseSymptoms);
       return result;

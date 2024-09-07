@@ -4,6 +4,7 @@ import Authentication from '../../auth/models/auth';
 import DiseaseSymptom from '../../diseases/models/disease.symptom';
 import { encrypt, decrypt } from '../../../utils';
 import PatientHistory from './patient.history';
+import Medication from '../../medications/model/medications';
 const pii: (keyof Patient)[]  = ['firstname', 'lastname', 'sex'];
 
 // Define attributes for the session model
@@ -93,7 +94,7 @@ Patient.init({
       }
     },
     afterFind: async (patient: Patient) => {      
-      if(patient) {
+      if(patient && !Array.isArray(patient)) {
         const patientObj = patient.toJSON() as Patient;
         pii.forEach((key) => {
           if(patientObj[key]) {
@@ -119,5 +120,6 @@ Patient.init({
 
 Patient.DiseaseSymptom = Patient.belongsToMany(DiseaseSymptom, { through: PatientHistory, foreignKey: 'patientId' });
 DiseaseSymptom.Patient = DiseaseSymptom.belongsToMany(Patient, { through: PatientHistory, foreignKey: 'diseaseandsymptomId' });
+Patient.hasMany(Medication, { foreignKey: 'patientId', as: 'meds' });
 
 export default Patient;

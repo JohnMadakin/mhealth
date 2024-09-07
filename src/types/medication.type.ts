@@ -4,5 +4,5 @@ export type NewMedication = {
   dosage: string; 
   frequency: number; 
   startTime: Date;
-  authId?: string;
+  patientId?: string;
 }

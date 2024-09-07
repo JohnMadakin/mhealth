@@ -2,8 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import csvParser from 'csv-parser';
 import Symptom from '../modules/diseases/models/symptoms';
-import Activity from '../modules/activities/models/activities';
-import DiseaseActivity from '../modules/activities/models/diseaase.activities';
 import Disease from '../modules/diseases/models/disease';
 import DiseaseSymptom from '../modules/diseases/models/disease.symptom';
 import sequelize from '../database/sequelize'; // Adjust this import based on your project structure
@@ -52,47 +50,6 @@ async function parseAndStoreCSV(filePath: string) {
     });
 }
 
-async function parseAndStoreDiseaseandActivityCSV(filePath: string) {
-  const results: { Disease: string; [key: string]: string | null }[] = [];
-  Disease.belongsToMany(Activity, { through: DiseaseActivity, foreignKey: 'diseaseId' });
-  Activity.belongsToMany(Disease, { through: DiseaseActivity, foreignKey: 'activityId' });
-
-  fs.createReadStream(filePath)
-    .pipe(csvParser())
-    .on('data', (data) => results.push(data))
-    .on('end', async () => {
-      // Parsing complete, now store in the DB
-      try {
-        for (const row of results) {
-          // Find or create Disease
-          const disease = await Disease.findOne({
-            where: { name: row.Disease.trim() },
-          });
-          if(!disease) return;
-          // Iterate over symptom columns and associate them with the disease
-          for (let i = 1; i <= 4; i++) {
-            const pKey = `Precaution_${i}`;
-            const activity = row[pKey]?.trim();
-
-            if (activity) {
-              // Find or create Symptom
-              const [a, createdactivity] = await Activity.findOrCreate({
-                where: { name: activity },
-              });
-
-              // Associate Disease and Symptom
-              // @ts-ignore
-              await disease.addActivity(a);
-            }
-          }
-        }
-
-        console.log('CSV data successfully stored in the database.');
-      } catch (error) {
-        console.error('Error storing data in the database: parseAndStoreDiseaseandActivityCSV: ', error);
-      }
-    });
-}
 
 async function parseAndUpdateDisease(filePath: string) {
   const results: { Disease: string; [key: string]: string | null }[] = [];
@@ -167,13 +124,11 @@ async function parseAndStorDataToTrack(filePath: string) {
       try {
         for (const row of results) {
           // Find or create Disease
-          console.log('🍎', row);
           const [disease, created] = await Disease.findOrCreate({
             where: { name: row.Disease.trim() },
           });
           const regex = /,(?![^(]*\))/;
           const data_to_track = row.Data_to_Track?.toLowerCase().split(regex);
-          // console.log('🍅', data_to_track);
           if(!data_to_track) return;
           // Iterate over symptom columns and associate them with the disease
           for (let i = 0; i <= data_to_track.length; i++) {
@@ -200,7 +155,7 @@ async function parseAndStorDataToTrack(filePath: string) {
 
 async function executeMethods() {
   await sequelize.sync({ force: true });
-  console.log('--🔥--')
+
   const filePath = path.join(__dirname, '/dataset.csv'); // Adjust the path to your CSV file
   await parseAndStoreCSV(filePath);
 
@@ -210,11 +165,8 @@ async function executeMethods() {
   const filePath3 = path.join(__dirname, '/Symptom-severity.csv'); // Adjust the path to your CSV file
   await parseAndUpdateSymptom(filePath3);
 
-  const filePath4 = path.join(__dirname, '/symptom_precaution.csv'); // Adjust the path to your CSV file
-  await parseAndStoreDiseaseandActivityCSV(filePath4);
-
-  const filePath5 =  path.join(__dirname, '/data_to_track.csv');
-  await parseAndStorDataToTrack(filePath5)
+  const filePath4 =  path.join(__dirname, '/data_to_track.csv');
+  await parseAndStorDataToTrack(filePath4)
 }
 
 executeMethods();

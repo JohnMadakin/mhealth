@@ -1,6 +1,7 @@
 import queueInstance from './index';
 
 function processQueueItems() {
+    console.log('==Queue runner started.==')
     queueInstance.process(async (job) => {
       const { worker, data } = job.data;
 

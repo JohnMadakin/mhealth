@@ -1,7 +1,6 @@
 import { BelongsToMany, DataTypes, Model } from 'sequelize';
 import sequelize from '../../../database/sequelize';
 import disease from './disease';
-import symptom from './symptoms';
 import Patient from '../../patients/models/patients';
 import TrackingData from './tracking.data';
 

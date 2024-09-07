@@ -1,7 +1,6 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../database/sequelize';
 import patients from '../../patients/models/patients';
-import activities from '../../activities/models/activities';
 
 
 // Define attributes for the Tracker model

@@ -5,6 +5,7 @@ export interface AppConfig {
   port: number;
   queueUrl: string;
   secretKey: string | undefined;
+  isWorker: string | null;
   usetwilioVerification: string | undefined;
   twiloAccount: string;
   twiloAuthToken: string;

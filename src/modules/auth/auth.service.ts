@@ -298,11 +298,11 @@ export async function getProfileByToken(data: AuthGoogleLoginDto): Promise<JWTUs
 }
 
 export async function verifySession(sessionId: string) {
-  return sessionModel.findByPk(sessionId);
+  return sessionModel.findByPk(sessionId, { raw: true });
 }
 
 export async function verifyUser(authId: string) {
-  return authentication.findByPk(authId, { include: Patient });
+  return authentication.findByPk(authId, { include: Patient, raw: true, nest: true });
 }
 
 export const validateSocialLogin = async (socialData: SocialInterface): Promise<JWTUser> => {

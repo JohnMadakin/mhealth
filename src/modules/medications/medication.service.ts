@@ -2,11 +2,8 @@ import joi from 'joi';
 import moment from 'moment';
 import { ErrorResponse } from '../../utils';
 import patients, { Patient } from '../patients/models/patients';
-import { CustomError, NewPatient, PatientSicknessSymptomsData, PatientSicknessSymptomsDatum } from 'types';
+import { CustomError } from 'types';
 import { validateSpec } from '../../utils';
-import DiseaseSymptom from '../diseases/models/disease.symptom';
-import Disease from '../diseases/models/disease';
-import Symptom from '../diseases/models/symptoms';
 import Medication from './model/medications';
 import { NewMedication } from '../../types/';
 import { addJobsToQueue } from '../queue/queue.service';
@@ -18,7 +15,9 @@ export const fetchMedications = async (authId: string): Promise<Patient> => {
       where: { authId, },
       attributes: [['id', 'patientId']],
       include: [{
-        model: Medication
+        model: Medication,
+        as: 'meds',
+        attributes: ['name', 'dosage', 'frequency', 'nextDose'],
       }]
     });
     if(!patient) throw new Error('Patient details unavalable.');
@@ -32,35 +31,37 @@ export const fetchMedications = async (authId: string): Promise<Patient> => {
 }
 
 const medicationSpec = joi.object({
-  description: joi.string().lowercase().required(),
-  authId: joi.string().uuid().required(),
+  patientId: joi.string().uuid().required(),
   name: joi.string().min(2).max(120).required(),
   dosage: joi.string().required(),
-  frequency: joi.number().min(1).max(24),
-  startTime: joi.date().required(),
+  frequency: joi.number().min(1).max(24), //need to set min as 1 to prevent infinite loop
+  startTime: joi.date().default(new Date()),
 });
 export const addMedications = async (data: any): Promise<Patient> => {
   try {
     const params = validateSpec<NewMedication>(medicationSpec, data);
 
     const patient = await patients.findOne({
-      where: { authId: params.authId, },
+      where: { id: params.patientId, },
       attributes: ['id'],
     });
     if(!patient) throw new Error('Patient details unavalable.');
 
     const nextDose = moment(params.startTime).add(params.frequency, 'hours').toDate();
-
     //@ts-ignore
-    const added = await patient.addMedication({
-      ...params,
+    const added = await patient.createMed({
+      patientId: params.patientId,
+      name: params.name,
+      dosage: params.dosage,
+      frequency: params.frequency,
+      startTime: params.startTime,
       nextDose,
     });
 
     await addJobsToQueue({
       worker: 'medicationReminder',
       delay: params.frequency * 60 * 60 * 1000,
-      data: { medicationId: added.medications.id }
+      data: { medicationId: added.id }
     });
     //TODO: add to queue
   
