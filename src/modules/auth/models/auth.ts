@@ -1,7 +1,7 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import bcrypt from 'bcrypt';
 import sequelize from '../../../database/sequelize';
-import { Authuser } from 'types/user.type';
+// import { Authuser } from 'types/user.type';
 import Session from './session';
 import OtpCred from './otp';
 import Patient from '../../patients/models/patients';
@@ -30,6 +30,12 @@ class Authentication extends Model<AuthAttributes, AuthCreationAttributes> {
   declare isVerified: boolean;
   declare OtpCredentials: OtpCred;
   declare Sessions: Session;
+
+  static associate() {
+    // Recommendation.belongsTo(disease, { foreignKey: 'diseaseId' });
+    // Recommendation.belongsTo(activity, { foreignKey: 'activityId' });
+  }
+  
   public async validatePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.getDataValue('password') || '');
   }

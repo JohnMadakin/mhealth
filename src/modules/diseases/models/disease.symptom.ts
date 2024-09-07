@@ -9,11 +9,11 @@ class DiseaseSymptom extends Model {
   declare diseaseId: number;
   declare symptomId: number;
   
-  static Patient: BelongsToMany<DiseaseSymptom, Patient>;
-  static associate() {
-    DiseaseSymptom.belongsTo(disease, { foreignKey: 'diseaseId' });
-    DiseaseSymptom.belongsTo(symptom, { foreignKey: 'symptomId' });
-  }
+  // static Patient: BelongsToMany<DiseaseSymptom, Patient>;
+  // static associate() {
+  //   DiseaseSymptom.belongsTo(disease, { foreignKey: 'diseaseId' });
+  //   DiseaseSymptom.belongsTo(symptom, { foreignKey: 'symptomId' });
+  // }
 }
 
 
@@ -28,7 +28,7 @@ DiseaseSymptom.init(
     diseaseId: {
       type: DataTypes.INTEGER,
       references: {
-        model: disease,
+        model: 'disease',
         key: 'id',
       },
       primaryKey: true,
@@ -36,7 +36,7 @@ DiseaseSymptom.init(
     symptomId: {
       type: DataTypes.INTEGER,
       references: {
-        model: symptom,
+        model: 'symptom',
         key: 'id',
       },
       primaryKey: true,
@@ -53,7 +53,7 @@ DiseaseSymptom.init(
 disease.belongsToMany(symptom, { through: 'diseaseSymptom', foreignKey: 'diseaseId' });
 symptom.belongsToMany(disease, { through: 'diseaseSymptom', foreignKey: 'symptomId' });
 // for completeness
-DiseaseSymptom.belongsTo(disease, { foreignKey: 'diseaseId' });
-DiseaseSymptom.belongsTo(symptom, { foreignKey: 'symptomId' });
+// DiseaseSymptom.belongsTo(disease, { foreignKey: 'diseaseId' });
+// DiseaseSymptom.belongsTo(symptom, { foreignKey: 'symptomId' });
 
 export default DiseaseSymptom;

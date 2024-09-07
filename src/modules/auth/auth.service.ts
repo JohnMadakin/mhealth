@@ -25,6 +25,7 @@ const joi = joiBase.extend(JoiDate);
 const spec = joi.object({
   firstname: joi.string().max(120).min(2).required(),
   lastname: joi.string().max(120).min(2).required(),
+  healthProvider: joi.string().max(120).min(2).required(),
   // password: joi.string().max(120).min(6).required(),
   sex: joi.string().valid('male', 'female').required(),
   authId: joi.string().uuid().required(),
@@ -52,6 +53,7 @@ export const patientSignUp = async (data: NewUser): Promise<Patient> => {
       lastname: params.lastname,
       dob: params.dob,
       sex: params.sex,
+      healthProvider: params.healthProvider
     });
     //TODO: send email
   

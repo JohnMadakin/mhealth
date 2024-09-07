@@ -1,7 +1,8 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../database/sequelize';
-import DiseaseSymptom from './disease.symptom';
-import Disease from './disease';
+// import DiseaseSymptom from './disease.symptom';
+// import Disease from './disease';
+import SymptomLog from '../../../modules/tracker/models/symptomLogs';
 
 
 // Define attributes for the Symptom model
@@ -46,7 +47,12 @@ Symptom.init({
   sequelize,
   tableName: 'symptoms',
   paranoid: true,
+  timestamps: true,
 
+});
+
+Symptom.hasMany(SymptomLog, {
+  foreignKey: 'symptomId'
 });
 
 export default Symptom;

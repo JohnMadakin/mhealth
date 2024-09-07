@@ -15,6 +15,13 @@ export const appConfig: AppConfig = {
   twiloVerificationId: process.env.TWILIO_VERIFICATION_ID || '',
   twiloAuthToken: process.env.TWILIO_AUTH_TOKEN || '',
   twiloPhoneNo: process.env.TWILIO_PHONE_NO || '+447572760334',
+  redisQueueUrl: process.env.REDIS_QUEUE_URL || '127.0.0.1:6379',
+  jobRemovalTime: process.env.QUEUE_JOB_REMOVAL_TIME || '1',
+  fitbitClientId: process.env.FITBIT_CLIENT_ID || '',
+  fitbitClientSecret: process.env.FITBIT_CLIENT_SECRET || '',
+  fitbitAuthorizationURL: process.env.FITBIT_AUTHORIZE_URL || 'https://www.fitbit.com/oauth2/authorize',
+  fitbitAPIUrl: process.env.FITBIT_API_URL || 'https://api.fitbit.com',
+  fitbitRedirectUrl: process.env.FITBIT_REDIRECT_URI || 'http://localhost',
   development: {
     dbUser: process.env.DB_USER || 'default_user',
     dbPass: process.env.DB_PASSWORD || 'default_password',

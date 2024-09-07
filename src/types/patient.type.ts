@@ -3,6 +3,13 @@ export type NewPatient = {
   lastname: string; 
   dob: string; 
   sex: string; 
+  healthProvider?: string;
+}
+export type NewSymptomLog = { 
+  authId?: string;
+  symptomId: number; 
+  severity: number; 
+  description: string; 
 }
 
 type DiseaseSymptom = string;

@@ -1,9 +1,10 @@
 import { Model, DataTypes, Optional, BelongsToMany } from 'sequelize';
 import sequelize from '../../../database/sequelize';
-import Authentication from '../../auth/models/auth';
+// import Authentication from '../../auth/models/auth';
 import DiseaseSymptom from '../../diseases/models/disease.symptom';
 import { encrypt, decrypt } from '../../../utils';
-import PatientDiseaseSymptom from './patients.disease.symptoms';
+import PatientHistory from './patient.history';
+import Medication from '../../medications/model/medications';
 const pii: (keyof Patient)[]  = ['firstname', 'lastname', 'sex'];
 
 // Define attributes for the session model
@@ -14,6 +15,7 @@ export interface PatientAttributes {
   lastname: string;
   dob: string;
   sex: string;
+  healthProvider?: string;
 }
 
 // Define options for the Disease model
@@ -27,6 +29,7 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
   declare lastname: string;
   declare dob: string;
   declare sex: string;
+  declare healthProvider?: string;
 
   static DiseaseSymptom: BelongsToMany<Patient, DiseaseSymptom>;
 }
@@ -40,7 +43,7 @@ Patient.init({
   authId: {
     type: DataTypes.UUID,
     references: {
-      model: Authentication,
+      model: 'authentication',
       key: 'id',
     },
     allowNull: false,
@@ -56,6 +59,10 @@ Patient.init({
   sex: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  healthProvider: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   dob: {
     type: DataTypes.DATEONLY,
@@ -117,7 +124,8 @@ Patient.init({
   }
 });
 
-Patient.DiseaseSymptom = Patient.belongsToMany(DiseaseSymptom, { through: PatientDiseaseSymptom, foreignKey: 'patientId' });
-DiseaseSymptom.Patient = DiseaseSymptom.belongsToMany(Patient, { through: PatientDiseaseSymptom, foreignKey: 'diseaseandsymptomId' });
+Patient.DiseaseSymptom = Patient.belongsToMany(DiseaseSymptom, { through: PatientHistory, foreignKey: 'patientId' });
+// DiseaseSymptom.Patient = DiseaseSymptom.belongsToMany(Patient, { through: PatientHistory, foreignKey: 'diseaseandsymptomId' });
+Patient.hasMany(Medication);
 
 export default Patient;

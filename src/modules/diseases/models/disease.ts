@@ -44,6 +44,7 @@ Disease.init({
   sequelize,
   tableName: 'diseases',
   paranoid: true,
+  timestamps: true,
 });
 
 // // Define Many-to-Many relationships

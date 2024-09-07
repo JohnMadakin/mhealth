@@ -7,6 +7,7 @@ export interface ActivityAttributes {
   name: string;
   canTrack: boolean;
   description?: string;
+  trackWith?: string;
 }
 
 // Define options for the Activity model
@@ -17,6 +18,7 @@ class Activity extends Model<ActivityAttributes, ActivityCreationAttributes>
   public id!: number;
   public name!: string;
   public description?: string;
+  public trackWith?: string;
   public canTrack!: boolean;
 
   // Timestamps
@@ -43,6 +45,11 @@ Activity.init({
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
+
+  },
+  trackWith: {
+    type: DataTypes.STRING,
+    allowNull: true,
 
   },
 }, {
