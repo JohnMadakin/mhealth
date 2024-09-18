@@ -25,6 +25,8 @@ export const userAuth = async function(request: FastifyRequest, reply: FastifyRe
     // Attach the decoded token to the request object
     request.user = validUser;
   } catch (err) {
+    console.log('🔥=> ', err);
+
     return reply.status(401).send({ error: 'Invalid token' });
   }
 }

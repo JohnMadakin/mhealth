@@ -90,13 +90,15 @@ export const getTrackingRecommendation = async (patientId: string): Promise<stri
         diseaseId: uniqueSet,
       },
       raw: true,
+      nest: true,
       include: [{
         model: TrackingData,
+        attributes: ['id', 'trackingItem']
       }]
     });
 
     //@ts-ignore
-    const recomList = recommendation.map(r => r['TrackingDatum.trackingItem']?.trim());
+    const recomList = recommendation.map(r => r['TrackingDatum']);
 
     return recomList;
   } catch (error) {

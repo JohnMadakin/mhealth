@@ -1,10 +1,8 @@
 import joi from 'joi';
 import { ErrorResponse } from '../../utils';
-import Disease, { DiseaseAttributes } from '../diseases/models/disease';
 import { CustomError } from 'types/error.type';
 import { validateSpec } from '../../utils';
-import Symptom, { SymptomAttributes } from '../diseases/models/symptoms';
-import { Includeable } from 'sequelize';
+import Symptom from '../diseases/models/symptoms';
 import SymptomLog, { SymptomLogAttributes } from './models/symptom.logs';
 import Patient from '../../modules/patients/models/patients';
 import { NewSymptomLog } from 'types';

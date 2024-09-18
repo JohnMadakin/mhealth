@@ -25,8 +25,18 @@ const joi = joiBase.extend(JoiDate);
 const spec = joi.object({
   firstname: joi.string().max(120).min(2).required(),
   lastname: joi.string().max(120).min(2).required(),
-  // password: joi.string().max(120).min(6).required(),
-  sex: joi.string().valid('male', 'female').required(),
+  healthProvider: joi.string(),
+  height: joi.string(),
+  weight: joi.string(),
+  bloodGroup: joi.string(),
+  priorSurgeries: joi.array().items(joi.string()),
+  allergies: joi.array().items(joi.string()),
+  emergencyContact: joi.object({
+    name: joi.string(),
+    phoneNo: joi.string(),
+    address: joi.string(),
+  }),
+  sex: joi.string().valid('male', 'female', 'prefer not to say').required(),
   authId: joi.string().uuid().required(),
   dob: joi.date().format('DD/MM/YYYY').max('now').custom(ageValidator).messages({
     'date.base': 'Date of birth must be a valid date',
@@ -37,21 +47,30 @@ const spec = joi.object({
 
 export const patientSignUp = async (data: NewUser): Promise<Patient> => {
   try {
-    const params = validateSpec<NewUser>(spec, data);
+    const { authId, ...params } = validateSpec<NewUser>(spec, data);
 
     let patient = await Patient.findOne({
       where: {
-        authId: params.authId,
+        authId,
       }
     });
-    if(!params.authId) throw new Error('AuthId is required.');
+    if(!authId) throw new Error('AuthId is required.');
     if(patient) throw new Error('User already registered.');
+    let alergies = '';
+    let priorSurgeries = '';
 
-    const result = await createNewPatientData(params.authId, {
-      firstname: params.firstname,
-      lastname: params.lastname,
-      dob: params.dob,
-      sex: params.sex,
+    if(params.allergies?.length) {
+      alergies = params.allergies.join(',');
+    }
+
+    if(params.priorSurgeries?.length) {
+      priorSurgeries = params.priorSurgeries.join(',');
+    }
+
+    const result = await createNewPatientData(authId, {
+      ...params,
+      alergies,
+      priorSurgeries,
     });
     //TODO: send email
   

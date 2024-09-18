@@ -47,6 +47,7 @@ export const verifyOTPToken = async function(request: FastifyRequest, reply: Fas
     // Attach the decoded token to the request object
     request.session = decoded as { id: string; sessionId: string; };
   } catch (err) {
+    console.log('🔥', err);
     return reply.status(401).send({ error: 'Invalid token' });
   }
 };

@@ -7,6 +7,18 @@ export type NewUser = {
   sex: string;
   authId?: string;
   healthProvider?: string;
+  height?: string;
+  weight?: string;
+  bloodGroup?: string;
+  allergies?: string[];
+  priorSurgeries?: string[];
+  emergencyContact?: EmergencyContact;
+}
+
+type EmergencyContact = {
+  name: string;
+  phoneNo: string;
+  address: string;
 }
 
 export type Authuser = {

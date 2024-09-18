@@ -4,6 +4,18 @@ export type NewPatient = {
   dob: string; 
   sex: string; 
   healthProvider?: string;
+  height?: string;
+  weight?: string;
+  bloodGroup?: string;
+  priorSurgeries?: string;
+  emergencyContact?: EmergencyContact;
+  alergies?: string;
+}
+
+export type EmergencyContact = {
+  name: string;
+  phoneNo: string;
+  address: string;
 }
 export type NewSymptomLog = { 
   authId?: string;

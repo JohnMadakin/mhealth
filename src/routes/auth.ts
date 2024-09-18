@@ -15,7 +15,7 @@ export const authRoutes: FastifyPluginCallback =  (fastify: FastifyInstance, opt
   fastify.post('/auth/set-pin', {
     preHandler: [verifyOTPToken, userAuth],
   }, setPin);
-  fastify.post('/social-signin', socialSignup);
+  fastify.post('/auth/social-signin', socialSignup);
   done();
 };
 

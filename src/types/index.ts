@@ -4,3 +4,4 @@ export * from './nullable.type';
 export * from './patient.type';
 export * from './error.type';
 export * from './medication.type';
+export * from './reminder.type';

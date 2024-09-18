@@ -5,6 +5,7 @@ import DiseaseSymptom from '../../diseases/models/disease.symptom';
 import { encrypt, decrypt } from '../../../utils';
 import PatientHistory from './patient.history';
 import Medication from '../../medications/model/medications';
+import { EmergencyContact } from 'types';
 const pii: (keyof Patient)[]  = ['firstname', 'lastname', 'sex'];
 
 // Define attributes for the session model
@@ -15,6 +16,12 @@ export interface PatientAttributes {
   lastname: string;
   dob: string;
   sex: string;
+  height?: string;
+  weight?: string;
+  bloodGroup?: string;
+  priorSurgeries?: string;
+  alergies?: string;
+  emergencyContact?: EmergencyContact;
 }
 
 // Define options for the Disease model
@@ -28,6 +35,12 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
   declare lastname: string;
   declare dob: string;
   declare sex: string;
+  declare height: string;
+  declare weight: string;
+  declare bloodGroup: string;
+  declare priorSurgeries: string;
+  declare alergies: string;
+  declare emergencyContact: EmergencyContact;
 
   static DiseaseSymptom: BelongsToMany<Patient, DiseaseSymptom>;
 }
@@ -40,6 +53,7 @@ Patient.init({
   },
   authId: {
     type: DataTypes.UUID,
+    unique: true,
     references: {
       model: Authentication,
       key: 'id',
@@ -51,6 +65,30 @@ Patient.init({
     allowNull: false,
   },
   lastname: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  height: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  weight: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  bloodGroup: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  priorSurgeries: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  emergencyContact: {
+    type: DataTypes.JSONB,
+    allowNull: false,
+  },
+  alergies: {
     type: DataTypes.STRING,
     allowNull: false,
   },
