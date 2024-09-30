@@ -153,6 +153,8 @@ async function parseAndStorDataToTrack(filePath: string) {
     });
 }
 
+
+
 async function executeMethods() {
   await sequelize.sync({ force: true });
 

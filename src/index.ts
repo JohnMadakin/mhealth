@@ -5,10 +5,10 @@ import processQueueItems from './modules/queue/processor';
 
 async function start() {
   try {
+    console.log('🍎', appConfig.environment)
     const app = await createApp();
     await sequelize.authenticate();
     await sequelize.sync({ force: false });
-
     if(appConfig.isWorker) {
       processQueueItems();
     }

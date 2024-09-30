@@ -8,7 +8,7 @@
     "start": "node dist/index.js",
     "start:dev": "nodemon",
     "create:knowledgebase": "ts-node src/datasets/create_knowledgebase.ts",
-    "test": "jest"
+    "test": "NODE_ENV=test jest --runInBand --forceExit"
   },
   "author": "",
   "license": "ISC",

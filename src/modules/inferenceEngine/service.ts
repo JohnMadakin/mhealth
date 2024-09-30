@@ -1,4 +1,4 @@
-// Sample initial facts (patient symptoms and conditions)
+// Sample initial facts (patient symptoms and symptoms)
 let facts = {
   diseases: ['Diabetes', 'Hypertension'],
   symptoms: ['fatigue', 'increased hunger', 'headache']
@@ -8,28 +8,28 @@ let facts = {
 const rules = [
   {
     disease: 'Diabetes',
-    condition: ['fatigue', 'increased hunger'],
+    symptom: ['fatigue', 'increased hunger'],
     action: ['track blood sugar levels', 'track diet']
   },
   {
     disease: 'Hypertension',
-    condition: ['headache', 'dizziness'],
+    symptom: ['headache', 'dizziness'],
     action: ['track blood pressure', 'track stress levels']
   },
   {
     disease: 'Asthma',
-    condition: ['breathlessness', 'wheezing'],
+    symptom: ['breathlessness', 'wheezing'],
     action: ['track environmental factors (pollen, air quality)']
   },
   {
-    condition: ['multiple symptoms'],
+    symptom: ['multiple symptoms'],
     action: ['track medication adherence']
   }
 ];
 
-// Function to check if conditions match facts
+// Function to check if symptoms match facts
 function checkConditions(rule: any, facts: { symptoms: string[]; }) {
-  return rule.condition.every((symptom: string) => facts.symptoms.includes(symptom));
+  return rule.symptom.every((symptom: string) => facts.symptoms.includes(symptom));
 }
 
 // Iterative process to apply rules and infer new tracking data

@@ -4,7 +4,6 @@ import { addJobsToQueue } from '../queue.service';
 
 
 export default async function medicationReminder(job: any) {
-  //send push notification
   const medication = await medications.findOne({
     where: {
       id: job.medicationId,

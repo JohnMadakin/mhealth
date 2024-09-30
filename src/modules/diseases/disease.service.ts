@@ -65,6 +65,51 @@ export const createSymptom = async (data: any): Promise<SymptomAttributes> => {
 
 export const getTrackingRecommendation = async (patientId: string): Promise<string[]> => {
   try {
+    // const patientData = await Patient.findAll({
+    //   // where: { id: patientId, },
+    //   // raw: true,
+    //   include: [{
+    //     model: DiseaseSymptom,
+    //     through: {
+    //       attributes: []
+    //     },
+    //   }]
+    // });
+
+    // if(!patientData) throw new Error('No recommendation for this patient. Kindly add your health history.');
+    // const pd = patientData?.toJSON();
+    // //@ts-ignore
+    // const symptomHistory = pd.diseaseSymptoms;
+    // //@ts-ignore
+    // const patientIllness = symptomHistory.map(p => p.diseaseId);
+
+    // if(!patientIllness.length) throw new Error('No patient history found.');
+    // const uniqueSet = [...new Set(patientIllness)];
+    const recommendation = await DiseaseTrackingData.findAll({
+      // where: {
+      //   diseaseId: uniqueSet,
+      // },
+      raw: true,
+      nest: true,
+      include: [{
+        model: TrackingData,
+        attributes: ['id', 'trackingItem']
+      }]
+    });
+
+    //@ts-ignore
+    const recomList = recommendation.map(r => r['TrackingDatum']);
+    //@ts-ignore
+    return recommendation;
+  } catch (error) {
+    const e = error as CustomError;
+    throw new ErrorResponse(e.message, 400);
+  }
+};
+
+
+export const getTrackingRecommendations = async (patientId: string): Promise<string[]> => {
+  try {
     const patientData = await Patient.findOne({
       where: { id: patientId, },
       // raw: true,

@@ -26,13 +26,13 @@ export const appConfig: AppConfig = {
   development: {
     dbUser: process.env.DB_USER || 'default_user',
     dbPass: process.env.DB_PASSWORD || 'default_password',
-    dbName: process.env.DB_NAME || 'default_database',
+    dbName: (getEnvironment() !== 'test' ? process.env.DB_NAME : process.env.DB_NAME_TEST) || 'default_db',
     dbHost: process.env.DB_HOST || '127.0.0.1',
   },
   test: {
     dbUser: process.env.DB_USER || 'default_user',
     dbPass: process.env.DB_PASSWORD || 'default_password',
-    dbName: process.env.DB_NAME || 'default_database',
+    dbName: process.env.DB_NAME_TEST || 'default_database',
     dbHost: process.env.DB_HOST || '127.0.0.1',
   },
   production: {

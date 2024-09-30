@@ -7,6 +7,9 @@ export default async (): Promise<Config> => {
     transform: {
       '^.+\\.(t|j)s$': 'ts-jest',
     },
+    globalSetup: './jestGlobalSetup.ts',
+    globalTeardown: './jestGlobalTeardown.ts',
+    testTimeout: 10000,
     collectCoverageFrom: [
       'src/**/*.ts',
       '!src/**/*.spec.ts',
